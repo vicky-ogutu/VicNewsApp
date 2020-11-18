@@ -2,11 +2,13 @@ package com.example.vicnews;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -41,9 +43,9 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder>{
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Articles articles = mArticles.get(position);
+        Articles article = mArticles.get(position);
         Glide.with(mContext)
-                .load(articles.getUrlToImage())
+                .load(article.getUrlToImage())
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
@@ -58,13 +60,20 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder>{
                     }
                 })
                 .into(holder.imageView);
-        holder.title.setText(articles.getTitle());
-        holder.description.setText(articles.getDescription());
-        holder.source.setText(articles.getSource().getName());
-        holder.author.setText(articles.getAuthor());
-        holder.date.setText(articles.getPublishedAt());
 
-        //holder.currentPosition=position;
+        holder.title.setText(article.getTitle());
+        holder.description.setText(article.getDescription());
+        holder.source.setText(article.getSource().getName());
+        holder.author.setText(article.getAuthor());
+        holder.date.setText(article.getPublishedAt());
+        holder.itemView.setOnClickListener(view -> {
+            Intent intent = new Intent(mContext, content.class);
+            intent.putExtra("url",  article.getUrl());
+            mContext.startActivity(intent);
+        });
+
+        // Alternative
+        holder.bind(article);
     }
 
     @Override
@@ -74,9 +83,12 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder>{
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
-        TextView title, description, source, author, date;
+        TextView title, description, source, author, date, content;
        // public int currentPosition;
         ProgressBar progressBar;
+        LinearLayout parentLayout;
+        private Articles article;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -88,6 +100,8 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder>{
             date = itemView.findViewById(R.id.publishedAt);
             progressBar = itemView.findViewById(R.id.progress_load_photo);
 
+           // content = itemView.findViewById(R.id.content);
+
            /* itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -97,7 +111,21 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder>{
                 }
             });*/
 
+           /* itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent  intent = new Intent(mContext, content.class);
+                    intent.putExtra("url", article.getUrl());
+                    mContext.startActivity(intent);
+                }
+            });*/
 
+
+        }
+
+        public void bind(Articles article) {
+
+            this.article = article;
         }
     }
 
